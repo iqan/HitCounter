@@ -10,35 +10,34 @@ namespace HitCounterWithGeneratedProxy.Hubs
 {
     public class HitCounterHub : Hub
     {
-        static int _hitCount = 0;
-        static List<string> lstiid = new List<string>();
-        private string iid;
+        private static readonly Dictionary<string,int> DictProduct = new Dictionary<string, int>(); 
+        
         public void RecordHit()
         {
-            iid = Context.QueryString["iid"];
-            _hitCount = lstiid.Where(x => x.Equals(iid)).Count();
-            Clients.All.onRecordHit(_hitCount);
+            var iid = Context.QueryString["iid"];
+            Clients.All.onRecordHit(DictProduct[iid]);
 
         }
 
         public override Task OnConnected()
         {
-            iid = Context.QueryString["iid"];
+            var iid = Context.QueryString["iid"];
 
             if (iid != null)
             {
-                lstiid.Add(iid);
+                if (DictProduct.ContainsKey(iid))
+                    DictProduct[iid]++;
+                else
+                    DictProduct.Add(iid, 1);  
             }
             return base.OnConnected();
         }
 
         public override Task OnDisconnected()
         {
-            iid = Context.QueryString["iid"];
-            lstiid.Remove(iid);
-            _hitCount = lstiid.Where(x => x.Equals(iid)).Count();
-            // _hitCount -= 1;
-            Clients.All.onRecordHit(_hitCount);
+            var iid = Context.QueryString["iid"];
+            DictProduct[iid]--;
+            Clients.All.onRecordHit(DictProduct[iid]);
 
             return base.OnDisconnected();
         }
