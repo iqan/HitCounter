@@ -25,24 +25,24 @@
             // Create a function that the hub can call to broadcast messages.
 
             hitCount.client.onRecordHit = function (hitCount) {
-                debugger;
+                //debugger;
                 $('#hitCountLabel').text(hitCount);
             };
 
             $.connection.hub.start(
                         function () {
-                            debugger;
+                            //debugger;
                             hitCount.server.recordHit();
                         }
                         )
                     .done(
                         function () {
-                            debugger;
-                            console.log('invoked');
+                            //debugger;
+                            //console.log('invoked');
                         }
                     )
                     .fail(function (error) {
-                        console.log("On Invoke" + error);
+                        console.log("Error on Invoke" + error);
                     }
                     )
             ;
@@ -56,18 +56,15 @@
 
                 var regex = new RegExp(expr);
 
-                var results = regex.exec("http://test.asosservices.com/Asos/Asos-Felt-Holdall/Prod/pgeproduct.aspx?iid=1305321");
+                var results = regex.exec(window.location.href);
                 debugger;
-                if (results !== null) {
-
+                if (results !== null)
                     return results[1];
-
-                    return decodeURIComponent(results[1].replace(/\+/g, " "));
-                } else {
+                else
                     return false;
-                }
             };
         })(jQuery);
+
     </script>
     
 </head>
