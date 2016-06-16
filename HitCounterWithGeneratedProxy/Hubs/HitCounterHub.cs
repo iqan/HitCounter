@@ -10,37 +10,53 @@ namespace HitCounterWithGeneratedProxy.Hubs
 {
     public class HitCounterHub : Hub
     {
-        private static readonly Dictionary<string,int> DictProduct = new Dictionary<string, int>(); 
-        
+        private static readonly Dictionary<int,int> DictProduct = new Dictionary<int, int>();
+
+
         public void RecordHit()
         {
-            var iid = Context.QueryString["iid"];
-            Clients.All.onRecordHit(DictProduct[iid]);
-
+            int iid = int.Parse(Context.QueryString["iid"]);
+            if (iid != 0)
+            {
+                if (DictProduct.ContainsKey(iid))
+                {
+                    Clients.All.onRecordHit(DictProduct[iid], iid);
+                }
+            }
         }
 
         public override Task OnConnected()
         {
-            var iid = Context.QueryString["iid"];
-
-            if (iid != null)
+            int iid = int.Parse(Context.QueryString["iid"]);
+            if (iid != 0)
             {
                 if (DictProduct.ContainsKey(iid))
-                    DictProduct[iid]++;
+                {
+                    DictProduct[iid] += 1;
+                }
                 else
-                    DictProduct.Add(iid, 1);  
+                {
+                    DictProduct.Add(iid, 1);
+                }
             }
             return base.OnConnected();
         }
 
         public override Task OnDisconnected()
         {
-            var iid = Context.QueryString["iid"];
-            DictProduct[iid]--;
-            Clients.All.onRecordHit(DictProduct[iid]);
-
+            int iid = int.Parse(Context.QueryString["iid"]);
+            if (iid != 0)
+            {
+                if (DictProduct.ContainsKey(iid))
+                {
+                    if (DictProduct[iid] > 0)
+                    {
+                        DictProduct[iid] -= 1;
+                    }
+                    Clients.All.onRecordHit(DictProduct[iid], iid);
+                }
+            }
             return base.OnDisconnected();
         }
-
     }
  }
